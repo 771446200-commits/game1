@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>二战后的埃及文化发展 | 历史课堂互动游戏</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none; /* 避免拖拽时选中文字，提升体验 */
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(145deg, #f0e9dd 0%, #e0d5c0 100%);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* 主游戏卡片容器 */
+        .game-container {
+            max-width: 1400px;
+            width: 100%;
+            background: #fffef7;
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(210, 180, 110, 0.4);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* 头部 */
+        .game-header {
+            background: #2c4b32;
+            color: #f9efcf;
+            padding: 1.2rem 2rem;
+            text-align: center;
+            border-bottom: 5px solid #dbb42c;
+        }
+
+        .game-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .game-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* 左右区域布局 */
+        .game-main {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 2rem 2rem 2rem 2rem;
+        }
+
+        /* 左侧知识点库 */
+        .knowledge-pool {
+            flex: 1.2;
+            min-width: 280px;
+            background: #fef7ec;
+            border-radius: 2rem;
+            padding: 1.2rem;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.02), 0 8px 20px rgba(0,0,0,0.08);
+            border: 1px solid #eedbba;
+        }
+
+        .knowledge-pool h2 {
+            background: #9b6e3e;
+            display: inline-block;
+            padding: 0.3rem 1.5rem;
+            border-radius: 40px;
+            font-size: 1.3rem;
+            color: white;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .drag-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* 可拖拽知识点卡片 */
+        .drag-item {
+            background: #fff4e6;
+            border-left: 12px solid #c49a6c;
+            border-radius: 1rem;
+            padding: 0.9rem 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #3a2a1f;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            cursor: grab;
+            transition: all 0.2s ease;
+            border-top: 1px solid #f0e2ce;
+            border-right: 1px solid #f0e2ce;
+            border-bottom: 1px solid #f0e2ce;
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+        }
+
+        .drag-item.dragging {
+            opacity: 0.4;
+            cursor: grabbing;
+        }
+
+        /* 右侧分类区域 */
+        .categories-area {
+            flex: 1.8;
+            min-width: 450px;
+        }
+
+        .categories-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        /* 每个目标框 */
+        .drop-zone {
+            flex: 1;
+            min-width: 220px;
+            background: #fefaf2;
+            border-radius: 1.5rem;
+            border: 3px dashed #bc9a6c;
+            transition: all 0.2s;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            background: #fffbf2;
+        }
+
+        .drop-zone.drag-over {
+            background: #f9efdb;
+            border-color: #d4af37;
+            transform: scale(1.01);
+        }
+
+        .zone-header {
+            background: #7c5e3a;
+            color: #fff3e0;
+            padding: 0.8rem;
+            text-align: center;
+            border-radius: 1.2rem 1.2rem 0 0;
+            font-weight: bold;
+            font-size: 1.15rem;
+            letter-spacing: 1px;
+        }
+
+        .zone-content {
+            min-height: 180px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            align-items: stretch;
+        }
+
+        /* 已经配对成功的卡片样式（不可拖拽） */
+        .paired-card {
+            background: #e1ecc2;
+            border-left: 8px solid #4c8b3c;
+            border-radius: 0.9rem;
+            padding: 0.7rem 0.8rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #2d4720;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .empty-zone-hint {
+            color: #bfa27b;
+            font-size: 0.85rem;
+            text-align: center;
+            font-style: italic;
+            padding: 0.8rem;
+        }
+
+        /* 底部按钮和信息 */
+        .game-footer {
+            padding: 1rem 2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-top: 1px solid #ecd9b5;
+            background: #fffbf0;
+        }
+
+        .reset-btn {
+            background: #9b6a3c;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            border-radius: 3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reset-btn:hover {
+            background: #7c4e2a;
+            transform: translateY(-2px);
+        }
+
+        .message-area {
+            background: #2d2b26;
+            color: #ffeaac;
+            padding: 0.5rem 1.2rem;
+            border-radius: 3rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            max-width: 60%;
+        }
+
+        @media (max-width: 850px) {
+            .game-main {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+            .categories-area {
+                min-width: auto;
+            }
+            .drag-item {
+                font-size: 0.9rem;
+            }
+            .message-area {
+                max-width: 100%;
+            }
+        }
+
+        .drag-instruction {
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            text-align: center;
+            color: #b47c48;
+            background: #fff0dd;
+            padding: 0.3rem;
+            border-radius: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="game-header">
+        <h1>🏺 二战后的埃及文化发展 · 配对挑战</h1>
+        <p>📖 将左侧的文化特征卡片拖拽到右侧正确的文化类型框中 | 正确则留在框内，错误自动弹回并发出提示音</p>
+    </div>
+
+    <div class="game-main">
+        <!-- 左侧：待拖拽知识点列表 (共5个) -->
+        <div class="knowledge-pool">
+            <h2>📚 待匹配的文化特征</h2>
+            <div class="drag-items-list" id="dragItemsList"></div>
+            <div class="drag-instruction">
+                🖱️ 按住卡片拖拽至右侧对应区域
+            </div>
+        </div>
+
+        <!-- 右侧：三个文化分类放置区 -->
+        <div class="categories-area">
+            <div class="categories-grid" id="categoriesGrid">
+                <!-- 三个放置区，使用 data-category-id 标识 -->
+                <div class="drop-zone" data-category-id="0" data-category-name="非洲特点的阿拉伯文化">
+                    <div class="zone-header">🏜️ 非洲特点的阿拉伯文化</div>
+                    <div class="zone-content" id="zoneContent0"></div>
+                </div>
+                <div class="drop-zone" data-category-id="1" data-category-name="欧洲和西亚等地的文化">
+                    <div class="zone-header">🌍 欧洲和西亚等地的文化</div>
+                    <div class="zone-content" id="zoneContent1"></div>
+                </div>
+                <div class="drop-zone" data-category-id="2" data-category-name="埃及传统文化">
+                    <div class="zone-header">🛕 埃及传统文化</div>
+                    <div class="zone-content" id="zoneContent2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-footer">
+        <button class="reset-btn" id="resetGameBtn">🔄 重置游戏 / 重新挑战</button>
+        <div class="message-area" id="statusMessage">⭐ 将知识点拖拽到右侧正确区域，试试看！</div>
+    </div>
+</div>
+
+<script>
+    // ---------- 定义知识点数据与正确配对映射 ----------
+    // 知识点列表 (id, 完整文本) 依据用户要求：1.伊斯兰教为官方宗教 2.阿拉伯语为官方语言 3.少数人信仰基督教等其他宗教 4.英语和法语也广泛使用 5.诸多名胜古迹成为埃及乃至世界的文化遗产
+    const knowledgeItems = [
+        { id: 0, text: "伊斯兰教为官方宗教" },
+        { id: 1, text: "阿拉伯语为官方语言" },
+        { id: 2, text: "少数人信仰基督教等其他宗教" },
+        { id: 3, text: "英语和法语也广泛使用" },
+        { id: 4, text: "诸多名胜古迹成为埃及乃至世界的文化遗产" }
+    ];
+
+    // 正确配对映射: 知识点id -> 目标分类id (0:非洲特点的阿拉伯文化, 1:欧洲和西亚等地的文化, 2:埃及传统文化)
+    const correctMapping = {
+        0: 0,   // 伊斯兰教为官方宗教 → 非洲特点的阿拉伯文化
+        1: 0,   // 阿拉伯语为官方语言 → 非洲特点的阿拉伯文化
+        2: 1,   // 少数人信仰基督教等其他宗教 → 欧洲和西亚等地的文化
+        3: 1,   // 英语和法语也广泛使用 → 欧洲和西亚等地的文化
+        4: 2    // 诸多名胜古迹... → 埃及传统文化
+    };
+
+    // 记录每个分类下已经配对成功的知识点id数组 (用于防止重复放入相同知识点)
+    let categoryPairedIds = {
+        0: [],   // 非洲特点的阿拉伯文化
+        1: [],   // 欧洲和西亚等地的文化
+        2: []    // 埃及传统文化
+    };
+
+    // 记录总配对成功数量（最多5个）
+    let totalPaired = 0;
+
+    // 音频上下文 (用于播放提示音)
+    let audioCtx = null;
+
+    // 初始化音频 (懒加载)
+    function initAudio() {
+        if (audioCtx) return audioCtx;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch(e) {
+            console.warn("Web Audio API 不支持，无法播放提示音");
+            return null;
+        }
+        return audioCtx;
+    }
+
+    // 播放错误提示音 (短促哔声)
+    function playErrorBeep() {
+        const ctx = initAudio();
+        if (!ctx) return;
+        // 恢复音频上下文（拖拽是用户手势，浏览器允许）
+        ctx.resume().then(() => {
+            const now = ctx.currentTime;
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 820; // 较高频错误提示
+            gainNode.gain.value = 0.2;
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, now + 0.25);
+            oscillator.stop(now + 0.25);
+        }).catch(e => console.log("音频播放失败", e));
+    }
+
+    // 更新底部消息
+    function setMessage(msg, isError = false) {
+        const msgDiv = document.getElementById('statusMessage');
+        if (!msgDiv) return;
+        msgDiv.textContent = msg;
+        if (isError) {
+            msgDiv.style.backgroundColor = "#9b4b3c";
+            msgDiv.style.color = "#ffe6cc";
+            setTimeout(() => {
+                if (document.getElementById('statusMessage')) {
+                    msgDiv.style.backgroundColor = "#2d2b26";
+                    msgDiv.style.color = "#ffeaac";
+                }
+            }, 1300);
+        } else {
+            msgDiv.style.backgroundColor = "#2d2b26";
+            msgDiv.style.color = "#ffeaac";
+        }
+    }
+
+    // 检查是否全部完成 (5个知识点全部配对成功)
+    function checkAllCompleted() {
+        if (totalPaired === 5) {
+            setMessage("🎉 完美！所有文化特征都正确归类！🎉 你已掌握二战后埃及文化发展的核心特点！");
+            const msgDiv = document.getElementById('statusMessage');
+            if (msgDiv) msgDiv.style.background = "#3c7a3e";
+        } else {
+            setMessage(`✅ 已完成 ${totalPaired}/5 个配对，继续挑战！`);
+        }
+    }
+
+    // 刷新右侧每个区域内的占位提示 (如果没有配对卡片，显示灰色提示)
+    function updateZonePlaceholders() {
+        for (let i = 0; i < 3; i++) {
+            const zoneContent = document.getElementById(`zoneContent${i}`);
+            if (!zoneContent) continue;
+            const hasPaired = zoneContent.querySelector('.paired-card') !== null;
+            let emptyHint = zoneContent.querySelector('.empty-zone-hint');
+            if (!hasPaired && !emptyHint) {
+                const hint = document.createElement('div');
+                hint.className = 'empty-zone-hint';
+                hint.innerText = '⬅️ 将正确卡片拖拽至此';
+                zoneContent.appendChild(hint);
+            } else if (hasPaired && emptyHint) {
+                emptyHint.remove();
+            }
+        }
+    }
+
+    // 获取分类名称
+    function getCategoryName(catId) {
+        const names = {
+            0: "非洲特点的阿拉伯文化",
+            1: "欧洲和西亚等地的文化",
+            2: "埃及传统文化"
+        };
+        return names[catId];
+    }
+
+    // 核心方法：正确配对后移动卡片 (源dragItem元素, 目标分类id, 知识点id)
+    function performMatch(dragElement, targetCategoryId, knowledgeId) {
+        // 1. 获取目标容器
+        const targetZone = document.getElementById(`zoneContent${targetCategoryId}`);
+        if (!targetZone) return false;
+
+        // 2. 检查该知识点是否已经被配对过 (防止重复从左侧拖拽同一个)
+        const alreadyPairedGlobal = Object.values(categoryPairedIds).flat().includes(knowledgeId);
+        if (alreadyPairedGlobal) {
+            playErrorBeep();
+            setMessage("⚠️ 这个知识点已经配对过了！请重置后重新挑战。", true);
+            return false;
+        }
+
+        // 3. 获取知识点文本
+        const knowledgeText = knowledgeItems.find(item => item.id === knowledgeId)?.text;
+        if (!knowledgeText) return false;
+
+        // 4. 从左侧列表中移除拖拽源卡片
+        if (dragElement && dragElement.parentNode) {
+            dragElement.remove();
+        } else {
+            return false;
+        }
+
+        // 5. 在右侧目标区域内添加配对卡片（不可拖拽）
+        const pairedDiv = document.createElement('div');
+        pairedDiv.className = 'paired-card';
+        pairedDiv.innerText = knowledgeText;
+        pairedDiv.setAttribute('data-paired-id', knowledgeId);
+        pairedDiv.setAttribute('data-category', targetCategoryId);
+        pairedDiv.draggable = false;
+        
+        // 移除该区域可能的占位提示
+        const existingHint = targetZone.querySelector('.empty-zone-hint');
+        if (existingHint) existingHint.remove();
+        targetZone.appendChild(pairedDiv);
+
+        // 6. 更新配对记录
+        categoryPairedIds[targetCategoryId].push(knowledgeId);
+        totalPaired++;
+        
+        // 7. 重新检查占位提示
+        updateZonePlaceholders();
+        
+        // 8. 显示成功消息
+        setMessage(`✔ 正确！「${knowledgeText}」已归入「${getCategoryName(targetCategoryId)}」`, false);
+        
+        // 9. 检查是否全部完成
+        checkAllCompleted();
+        return true;
+    }
+
+    // ---------- 拖拽相关逻辑 ----------
+    let currentDragItem = null;
+
+    // dragstart 处理
+    function handleDragStart(e) {
+        const target = e.target.closest('.drag-item');
+        if (!target) {
+            e.preventDefault();
+            return false;
+        }
+        // 只允许左侧待匹配卡片拖拽（class包含drag-item且父级在左侧区域）
+        if (!target.parentElement?.closest('.knowledge-pool')) {
+            e.preventDefault();
+            return false;
+        }
+        currentDragItem = target;
+        const dragId = target.getAttribute('data-id');
+        if (dragId !== null) {
+            e.dataTransfer.setData('text/plain', dragId);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        target.classList.add('dragging');
+        // 设置拖拽图标效果
+        e.dataTransfer.setDragImage(target, 20, 20);
+    }
+
+    function handleDragEnd(e) {
+        const target = e.target.closest('.drag-item');
+        if (target) {
+            target.classList.remove('dragging');
+        }
+        // 清除所有放置区的高亮样式
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.classList.remove('drag-over');
+        });
+        currentDragItem = null;
+    }
+
+    // dragover 必须阻止默认行为
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const dropZone = e.target.closest('.drop-zone');
+        if (dropZone && !dropZone.classList.contains('drag-over')) {
+            document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+            dropZone.classList.add('drag-over');
+        }
+    }
+
+    // drop 核心: 判断正确性，正确则调用performMatch，错误则弹回(不做移动+提示音)
+    function handleDrop(e) {
+        e.preventDefault();
+        // 清除高亮
+        clearDragOverStyles();
+        
+        const targetZone = e.target.closest('.drop-zone');
+        if (!targetZone) {
+            // 放到无效区域：弹回（不做任何移动），播放提示音
+            if (currentDragItem) {
+                playErrorBeep();
+                setMessage("❌ 请将卡片拖拽到右侧的指定文化分类框内！", true);
+            }
+            return;
+        }
+        
+        const dragSource = currentDragItem;
+        if (!dragSource) return;
+        
+        // 获取知识点id
+        const knowledgeIdAttr = dragSource.getAttribute('data-id');
+        if (knowledgeIdAttr === null) {
+            playErrorBeep();
+            setMessage("无效卡片，请重置游戏", true);
+            return;
+        }
+        const knowledgeId = parseInt(knowledgeIdAttr);
+        const targetCategoryId = parseInt(targetZone.getAttribute('data-category-id'));
+        
+        // 额外检查该知识点是否已经配对过
+        const isAlreadyPaired = Object.values(categoryPairedIds).flat().includes(knowledgeId);
+        if (isAlreadyPaired) {
+            playErrorBeep();
+            setMessage(`⚠️ “${dragSource.innerText}” 已经配对过了，不能重复拖拽！`, true);
+            return;
+        }
+        
+        // 验证配对映射是否正确
+        const isCorrect = (correctMapping[knowledgeId] === targetCategoryId);
+        
+        if (isCorrect) {
+            // 正确配对：执行移动并留在框内
+            performMatch(dragSource, targetCategoryId, knowledgeId);
+        } else {
+            // 错误配对: 播放提示音，卡片返回原位置(不做任何DOM移动)
+            playErrorBeep();
+            const expectedCatId = correctMapping[knowledgeId];
+            const expectedName = getCategoryName(expectedCatId);
+            setMessage(`❌ 配对错误！“${dragSource.innerText}” 不属于“${getCategoryName(targetCategoryId)}”，应属于“${expectedName}”。`, true);
+            // 无需额外操作，卡片留在原位
+        }
+        
+        // 清除拖拽样式
+        if (dragSource) dragSource.classList.remove('dragging');
+        currentDragItem = null;
+    }
+    
+    function clearDragOverStyles() {
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.classList.remove('drag-over');
+        });
+    }
+    
+    // ---------- 重置游戏 ----------
+    function resetGame() {
+        // 重置配对记录
+        categoryPairedIds = { 0: [], 1: [], 2: [] };
+        totalPaired = 0;
+        
+        // 清空所有右侧区域的配对卡片和占位提示
+        for (let i = 0; i < 3; i++) {
+            const zoneContent = document.getElementById(`zoneContent${i}`);
+            if (zoneContent) {
+                const pairedCards = zoneContent.querySelectorAll('.paired-card');
+                pairedCards.forEach(card => card.remove());
+                const hints = zoneContent.querySelectorAll('.empty-zone-hint');
+                hints.forEach(hint => hint.remove());
+            }
+        }
+        
+        // 重新构建左侧知识点列表（基于原始 knowledgeItems）
+        const dragListContainer = document.getElementById('dragItemsList');
+        if (dragListContainer) {
+            dragListContainer.innerHTML = '';
+            knowledgeItems.forEach(item => {
+                const dragDiv = document.createElement('div');
+                dragDiv.className = 'drag-item';
+                dragDiv.setAttribute('draggable', 'true');
+                dragDiv.setAttribute('data-id', item.id);
+                dragDiv.innerText = item.text;
+                // 绑定拖拽事件
+                dragDiv.addEventListener('dragstart', handleDragStart);
+                dragDiv.addEventListener('dragend', handleDragEnd);
+                dragListContainer.appendChild(dragDiv);
+            });
+        }
+        
+        // 刷新右侧占位提示
+        updateZonePlaceholders();
+        
+        // 重置消息
+        setMessage("✨ 游戏已重置，重新拖拽配对挑战吧！");
+        const msgDiv = document.getElementById('statusMessage');
+        if (msgDiv) msgDiv.style.backgroundColor = "#2d2b26";
+        
+        // 清除拖拽残留样式
+        currentDragItem = null;
+        clearDragOverStyles();
+    }
+    
+    // ---------- 初始化事件绑定（放置区全局监听 + 重置按钮）----------
+    function initDropZones() {
+        const dropZones = document.querySelectorAll('.drop-zone');
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', handleDragOver);
+            zone.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+            zone.addEventListener('dragleave', (e) => {
+                if (!zone.contains(e.relatedTarget)) {
+                    zone.classList.remove('drag-over');
+                }
+            });
+            zone.addEventListener('drop', handleDrop);
+        });
+    }
+    
+    // 页面启动
+    function initGame() {
+        resetGame();        // 构建左侧卡片，清空右侧
+        initDropZones();    // 给右侧区域添加拖拽监听
+        // 防止页面默认拖拽图片等
+        window.addEventListener('dragstart', (e) => {
+            if (!e.target.closest('.drag-item')) {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    // 重置按钮监听
+    document.getElementById('resetGameBtn').addEventListener('click', () => {
+        resetGame();
+        // 重新绑定左侧卡片事件 (resetGame 已重建列表并绑定了事件，但以防万一，再次确保)
+        document.querySelectorAll('.drag-item').forEach(item => {
+            item.removeEventListener('dragstart', handleDragStart);
+            item.removeEventListener('dragend', handleDragEnd);
+            item.addEventListener('dragstart', handleDragStart);
+            item.addEventListener('dragend', handleDragEnd);
+        });
+        setMessage("🔄 已重置所有配对，可以重新开始学习！");
+    });
+    
+    // 启动游戏
+    initGame();
+</script>
+</body>
+</html>
